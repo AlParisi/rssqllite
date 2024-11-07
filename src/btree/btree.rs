@@ -18,7 +18,6 @@ impl BTree {
     pub(crate) fn insert(&mut self, row: Row) {
         if let Some(root) = self.root.as_mut() {
             if root.keys.len() == 2 * T - 1 {
-                // Se il nodo radice è pieno, dobbiamo dividerlo
                 let mut new_root = BTreeNode {
                     is_leaf: false,
                     keys: Vec::new(),
@@ -29,7 +28,6 @@ impl BTree {
             }
             self.root.as_mut().unwrap().insert_non_full(row);
         } else {
-            // Creare un nuovo nodo radice se l'albero è vuoto
             self.root = Some(Box::new(BTreeNode {
                 is_leaf: true,
                 keys: vec![row],

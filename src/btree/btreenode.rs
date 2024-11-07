@@ -15,18 +15,15 @@ pub struct BTreeNode {
 
 impl BTreeNode {
     pub(crate) fn search(&self, id: u32) -> Option<&Row> {
-        // Cerca l'id in questo nodo
         let mut i = 0;
         while i < self.keys.len() && id > self.keys[i].id {
             i += 1;
         }
 
-        // Se l'ID è trovato in questo nodo, ritorna la riga
         if i < self.keys.len() && self.keys[i].id == id {
             return Some(&self.keys[i]);
         }
 
-        // Altrimenti, ricerca nel figlio appropriato
         if self.is_leaf {
             None
         } else {
@@ -38,31 +35,25 @@ impl BTreeNode {
         let mut i = self.keys.len();
 
         if self.is_leaf {
-            // Inserisci direttamente se è una foglia
             while i > 0 && row.id < self.keys[i - 1].id {
                 i -= 1;
             }
             self.keys.insert(i, row);
         } else {
-            // Individua il figlio dove inserire
             while i > 0 && row.id < self.keys[i - 1].id {
                 i -= 1;
             }
 
-            // Preleva temporaneamente il figlio completo
             if self.children[i].keys.len() == 2 * T - 1 {
-                // Rimuove il figlio temporaneamente e lo divide
                 let mut child = std::mem::take(&mut self.children[i]);
                 self.split_child(i, &mut child);
-                self.children[i] = child; // Reinserisce il figlio
+                self.children[i] = child;
 
-                // Regola `i` per puntare al figlio corretto dopo la divisione
                 if row.id > self.keys[i].id {
                     i += 1;
                 }
             }
 
-            // Ora possiamo accedere al figlio senza doppio prestito mutabile
             self.children[i].insert_non_full(row);
         }
     }

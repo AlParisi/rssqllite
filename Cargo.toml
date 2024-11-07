@@ -2,5 +2,8 @@
 name = "rsqllite"
 version = "0.1.0"
 edition = "2021"
+authors = ["Giuseppe Alberto Parisi <parisialberto@gmail.com>"]
+license = "GPL-3.0"
+readme = "README.md"
 
 [dependencies]
