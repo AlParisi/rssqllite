@@ -1,21 +1,21 @@
 use crate::btree::btreenode::{BTreeNode, T};
 use crate::btree::btreenode::Row;
 
-#[derive(Debug, Clone)]
-pub struct BTree {
-    pub root: Option<Box<BTreeNode>>,
+#[derive(Debug, Clone, Default)]
+pub struct BTree<T: std::clone::Clone> {
+    pub root: Option<Box<BTreeNode<T>>>,
 }
 
-impl BTree {
+impl<T: std::clone::Clone + std::default::Default> BTree<T> {
     pub fn new() -> Self {
         BTree { root: None }
     }
 
-    fn search(&self, id: u32) -> Option<&Row> {
+    fn search(&self, id: u64) -> Option<&Row<T>> {
         self.root.as_ref()?.search(id)
     }
 
-    pub(crate) fn insert(&mut self, row: Row) {
+    pub(crate) fn insert(&mut self, row: Row<T>) {
         if let Some(root) = self.root.as_mut() {
             if root.keys.len() == 2 * T - 1 {
                 let mut new_root = BTreeNode {

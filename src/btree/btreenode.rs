@@ -1,20 +1,25 @@
 #[derive(Debug, Clone)]
-pub struct Row {
-    pub id: u32,
-    pub username: String,
-    pub email: String,
+pub struct Row<T> {
+    pub id: u64,
+    pub data: T
+}
+
+impl<T> Row<T> {
+    pub fn new(id: u64, data: T) -> Self {
+        Self { id, data }
+    }
 }
 
 pub const T: usize = 3;
 #[derive(Debug, Clone, Default)]
-pub struct BTreeNode {
+pub struct BTreeNode<T>  where T: Clone{
     pub is_leaf: bool,
-    pub keys: Vec<Row>,
-    pub children: Vec<Box<BTreeNode>>,
+    pub keys: Vec<Row<T>>,
+    pub children: Vec<Box<BTreeNode<T>>>,
 }
 
-impl BTreeNode {
-    pub(crate) fn search(&self, id: u32) -> Option<&Row> {
+impl<T: std::clone::Clone + std::default::Default> BTreeNode<T> {
+    pub(crate) fn search(&self, id: u64) -> Option<&Row<T>> {
         let mut i = 0;
         while i < self.keys.len() && id > self.keys[i].id {
             i += 1;
@@ -31,7 +36,7 @@ impl BTreeNode {
         }
     }
 
-    pub fn insert_non_full(&mut self, row: Row) {
+    pub fn insert_non_full(&mut self, row: Row<T>) {
         let mut i = self.keys.len();
 
         if self.is_leaf {
@@ -59,8 +64,8 @@ impl BTreeNode {
     }
 
 
-    pub fn split_child(&mut self, i: usize, node: &mut BTreeNode) {
-        let mut new_node = BTreeNode {
+    pub fn split_child(&mut self, i: usize, node: &mut BTreeNode<T>) {
+        let new_node = BTreeNode {
             is_leaf: node.is_leaf,
             keys: node.keys.split_off(T - 1),
             children: if node.is_leaf {

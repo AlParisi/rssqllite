@@ -17,13 +17,10 @@ fn main() {
 
         if trimmed.starts_with("insert") {
             let parts: Vec<&str> = trimmed.split_whitespace().collect();
-            if parts.len() == 4 {
-                if let (Ok(id), Some(username), Some(email)) = (parts[1].parse(), parts.get(2), parts.get(3)) {
-                    let row = Row { id, username: username.to_string(), email: email.to_string() };
-                    table.insert_row(row);
-                } else {
-                    println!("Invalid command format.");
-                }
+            // to fix!!!
+            if let (Ok(id), data) = (parts[1].parse(), parts.get(2).unwrap().to_string()) {
+                let row = Row { id, data};
+                table.insert_row(row);
             }
         } else if trimmed == "select" {
             table.print_rows();
