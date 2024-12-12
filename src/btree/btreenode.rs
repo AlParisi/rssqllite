@@ -1,25 +1,31 @@
+use sqlparser::ast::DataType;
+
 #[derive(Debug, Clone)]
-pub struct Row<T> {
+pub struct Row {
     pub id: u64,
-    pub data: T
+    pub data: Vec<DataType>
 }
 
-impl<T> Row<T> {
-    pub fn new(id: u64, data: T) -> Self {
-        Self { id, data }
+impl Row {
+    pub fn new(data: Vec<DataType>) -> Self {
+        let mut i: u64 = 0;
+        Row {
+            id: i + 1,
+            data
+        }
     }
 }
 
-pub const T: usize = 3;
+pub const P: usize = 3;
 #[derive(Debug, Clone, Default)]
-pub struct BTreeNode<T>  where T: Clone{
+pub struct BTreeNode{
     pub is_leaf: bool,
-    pub keys: Vec<Row<T>>,
-    pub children: Vec<Box<BTreeNode<T>>>,
+    pub keys: Vec<Row>,
+    pub children: Vec<Box<BTreeNode>>,
 }
 
-impl<T: std::clone::Clone + std::default::Default> BTreeNode<T> {
-    pub(crate) fn search(&self, id: u64) -> Option<&Row<T>> {
+impl BTreeNode{
+    pub(crate) fn search(&self, id: u64) -> Option<&Row> {
         let mut i = 0;
         while i < self.keys.len() && id > self.keys[i].id {
             i += 1;
@@ -36,7 +42,7 @@ impl<T: std::clone::Clone + std::default::Default> BTreeNode<T> {
         }
     }
 
-    pub fn insert_non_full(&mut self, row: Row<T>) {
+    pub fn insert_non_full(&mut self, row: Row) {
         let mut i = self.keys.len();
 
         if self.is_leaf {
@@ -49,7 +55,7 @@ impl<T: std::clone::Clone + std::default::Default> BTreeNode<T> {
                 i -= 1;
             }
 
-            if self.children[i].keys.len() == 2 * T - 1 {
+            if self.children[i].keys.len() == 2 * P - 1 {
                 let mut child = std::mem::take(&mut self.children[i]);
                 self.split_child(i, &mut child);
                 self.children[i] = child;
@@ -64,14 +70,14 @@ impl<T: std::clone::Clone + std::default::Default> BTreeNode<T> {
     }
 
 
-    pub fn split_child(&mut self, i: usize, node: &mut BTreeNode<T>) {
+    pub fn split_child(&mut self, i: usize, node: &mut BTreeNode) {
         let new_node = BTreeNode {
             is_leaf: node.is_leaf,
-            keys: node.keys.split_off(T - 1),
+            keys: node.keys.split_off(3 - 1),
             children: if node.is_leaf {
                 Vec::new()
             } else {
-                node.children.split_off(T)
+                node.children.split_off(P)
             },
         };
         self.keys.insert(i, node.keys.pop().unwrap());
